@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# ignored due to bigger file size
+artifacts
+
 # Distribution / packaging
 .Python
 build/

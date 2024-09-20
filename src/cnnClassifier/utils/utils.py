@@ -11,6 +11,7 @@ from pathlib import Path
 from box import ConfigBox
 from typing import Any
 from ensure import ensure_annotations
+from src.cnnClassifier.constants import HOME
 from src.cnnClassifier.logger import logging
 from src.cnnClassifier.exception import CustomException
 
@@ -37,12 +38,16 @@ def save_json(path:Path,data:dict):
 
 
 @ensure_annotations
-def create_directories(path_to_directories: list, verbose=True):
+def create_directories(path_to_directories: list,home=HOME, verbose=True):
     try:
         for path in path_to_directories:
-            os.makedirs(path, exist_ok=True)
-            if verbose:
-                logging.info(f"created directory at: {path}")
+            dir_path = Path(os.path.join(home,path))
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path, exist_ok=True)
+                if verbose:
+                    logging.info(f"created directory at: {dir_path}")
+            else:
+                logging.info(f"directory already exists at : {dir_path}")
     except Exception as e : 
         raise CustomException(e,sys)
 
@@ -115,7 +120,7 @@ def decodeImage(img_str, file_name):
         raise CustomException(e,sys)
 
 
-def save_object(file_path,obj):
+def save_object(file_path:Path,obj):
     try :
         dir_path = os.path.dirname(file_path)
         os.makedirs(dir_path,exist_ok=True)
@@ -125,30 +130,9 @@ def save_object(file_path,obj):
         raise CustomException(e,sys)
     
 
-def load_object(path):
+def load_object(path:Path):
     try : 
         model = pickle.load(open(path, "rb"))
         return model
-    except Exception as e: 
-        raise CustomException(e,sys)
-
-
-def load_selected_features(file_path):
-    try:
-        with open(file_path,'r') as file_obj:
-            features_list = json.load(file_obj)
-        return features_list
-    except Exception as e:
-        raise CustomException(e,sys)
-
-
-def save_report(report,path):
-    try: 
-        models_training_report = pd.DataFrame(data={
-                'models' : report.keys(),
-                'training_r2' : [v[0] for v in list(report.values())],
-                'testing_r2' : [v[1] for v in list(report.values())]
-            })
-        models_training_report.to_csv(path,header=True,index=False)   
     except Exception as e: 
         raise CustomException(e,sys)
