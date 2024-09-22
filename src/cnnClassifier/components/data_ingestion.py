@@ -7,7 +7,7 @@ import zipfile
 from src.cnnClassifier.entity.config_entity import DataIngestionConfig
 from src.cnnClassifier.logger import logging
 from src.cnnClassifier.exception import CustomException
-from src.cnnClassifier.utils.utils import get_size
+from src.cnnClassifier.utils.utils import get_size, create_directories
 
 
 class DataIngestion:
@@ -43,7 +43,7 @@ class DataIngestion:
     def extract_zip_file(self):
         unzip_path = self.config.unzip_dir
         try :
-            os.makedirs(unzip_path, exist_ok=True)
+            create_directories([unzip_path])
             with zipfile.ZipFile(self.config.local_data_file, 'r') as zip_ref:
                 zip_ref.extractall(unzip_path)
         except Exception as e: 
