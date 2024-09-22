@@ -1,1 +1,18 @@
-key: val
+# as per VGG 16 model
+
+# for preparing base model
+IMAGE_SIZE: [224,224,3]
+LEARNING_RATE: 0.01
+INCLUDE_TOP: False
+WEIGHTS: imagenet
+CLASSES: 2
+
+# for transfer learning
+FREEZE_ALL: True
+FREEZE_TILL: None
+
+# for model training
+BATCH_SIZE: 16
+AUGMENTATION: True
+EPOCHS: 1
+

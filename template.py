@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from src.logger import logging
+from src.cnnClassifier.logger import logging
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s]: %(message)s:')
 

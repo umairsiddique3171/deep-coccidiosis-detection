@@ -6,7 +6,7 @@ import base64
 import pandas as pd 
 import numpy as np
 import joblib
-import pickle
+import tensorflow as tf
 from pathlib import Path
 from box import ConfigBox
 from typing import Any
@@ -17,24 +17,39 @@ from src.cnnClassifier.exception import CustomException
 
 
 @ensure_annotations
-def read_yaml(path:Path) -> ConfigBox:
+def read_yaml(path:Path,home=HOME) -> ConfigBox:
     try: 
-        with open(path) as file:
+        file_path = Path(os.path.join(home,path))
+        with open(file_path) as file:
             content = yaml.safe_load(file)
-            logging.info(f"yaml file : {path} loaded successfully")
-            return ConfigBox(content)
+        logging.info(f"yaml file loaded successfully form: {file_path}")
+        return ConfigBox(content)
     except Exception as e:
         raise CustomException(e,sys)
     
 
 @ensure_annotations
-def save_json(path:Path,data:dict):
-    try: 
-        with open(path,"w") as f:
-            json.dump(data,f,indent=4)
-            logging.info(f"json file save at : {path}")
-    except Exception as e :
+def load_json(path:Path,home=HOME) -> ConfigBox:
+    try:
+        file_path = Path(os.path.join(home,path)) 
+        with open(file_path) as f:
+            content = json.load(f)
+        logging.info(f"json file loaded succesfully from: {file_path}")
+        return ConfigBox(content)
+    except Exception as e: 
         raise CustomException(e,sys)
+    
+
+@ensure_annotations
+def load_bin(path:Path,home=HOME) -> Any:
+    try: 
+        file_path = Path(os.path.join(home,path))
+        data = joblib.load(file_path)
+        logging.info(f"binary file loaded from: {file_path}")
+        return data
+    except Exception as e: 
+        raise CustomException(e,sys)
+    
 
 
 @ensure_annotations
@@ -47,92 +62,59 @@ def create_directories(path_to_directories: list,home=HOME, verbose=True):
                 if verbose:
                     logging.info(f"created directory at: {dir_path}")
             else:
-                logging.info(f"directory already exists at : {dir_path}")
+                logging.info(f"directory already exists at: {dir_path}")
     except Exception as e : 
         raise CustomException(e,sys)
 
 
 @ensure_annotations
-def save_json(path: Path, data: dict):
+def save_json(path: Path, data: dict, home=HOME):
     try: 
-        with open(path, "w") as f:
+        file_path = Path(os.path.join(home,path))
+        with open(file_path, "w") as f:
             json.dump(data, f, indent=4)
-        logging.info(f"json file saved at: {path}")
+        logging.info(f"json file saved at: {file_path}")
     except Exception as e: 
         raise CustomException(e,sys)
 
 
 @ensure_annotations
-def load_json(path: Path) -> ConfigBox:
+def save_bin(data: Any, path: Path, home=HOME):
     try: 
-        with open(path) as f:
-            content = json.load(f)
-        logging.info(f"json file loaded succesfully from: {path}")
-        return ConfigBox(content)
-    except Exception as e: 
-        raise CustomException(e,sys)
-
-
-@ensure_annotations
-def save_bin(data: Any, path: Path):
-    try: 
-        joblib.dump(value=data, filename=path)
-        logging.info(f"binary file saved at: {path}")
+        file_path = Path(os.path.join(home,path))
+        joblib.dump(value=data, filename=file_path)
+        logging.info(f"binary file saved at: {file_path}")
     except Exception as e: 
         raise CustomException(e,sys)
     
 
 @ensure_annotations
-def load_bin(path: Path) -> Any:
+def get_size(path: Path,home=HOME) -> str:
     try: 
-        data = joblib.load(path)
-        logging.info(f"binary file loaded from: {path}")
-        return data
-    except Exception as e: 
-        raise CustomException(e,sys)
-    
-
-@ensure_annotations
-def get_size(path: Path) -> str:
-    try: 
-        size_in_kb = round(os.path.getsize(path)/1024)
+        file_path = Path(os.path.join(home,path))
+        size_in_kb = round(os.path.getsize(file_path)/1024)
         return f"~ {size_in_kb} KB"
     except Exception as e: 
         raise CustomException(e,sys)
     
 
-def encodeImageIntoBase64I(img_path):
+def encodeImageIntoBase64I(path:Path,home=HOME):
     try: 
-        with open(img_path, "rb") as f:
+        file_path = Path(os.path.join(home,path))
+        with open(file_path, "rb") as f:
             img_str = base64.b64encode(f.read())
             return img_str
     except Exception as e:
         raise CustomException(e,sys)
 
 
-def decodeImage(img_str, file_name):
+def decodeImage(img_str, path:Path,home=HOME):
     try: 
         img = base64.b64decode(img_str)
-        with open(file_name, 'wb') as f:
+        file_path = Path(os.path.join(home,path))
+        with open(file_path, 'wb') as f:
             f.write(img)
             f.close()
     except Exception as e: 
         raise CustomException(e,sys)
-
-
-def save_object(file_path:Path,obj):
-    try :
-        dir_path = os.path.dirname(file_path)
-        os.makedirs(dir_path,exist_ok=True)
-        with open(file_path, 'wb') as f:
-            pickle.dump(obj, f)
-    except Exception as e: 
-        raise CustomException(e,sys)
-    
-
-def load_object(path:Path):
-    try : 
-        model = pickle.load(open(path, "rb"))
-        return model
-    except Exception as e: 
-        raise CustomException(e,sys)
+        

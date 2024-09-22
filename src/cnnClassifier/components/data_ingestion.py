@@ -4,17 +4,18 @@ import shutil
 import urllib.request as request
 from pathlib import Path
 import zipfile
-from src.cnnClassifier.entity.config_entity import *
+from src.cnnClassifier.entity.config_entity import DataIngestionConfig
 from src.cnnClassifier.logger import logging
 from src.cnnClassifier.exception import CustomException
 from src.cnnClassifier.utils.utils import get_size
+
 
 class DataIngestion:
     def __init__(self, config: DataIngestionConfig):
         self.config = config
     
     def copy_or_download_file(self):
-        source_file_path = self.config.source_local_url
+        source_file_path = self.config.source_local_path
         try:
             if source_file_path:  # Copy the file if source path is provided
                 if os.path.exists(source_file_path):
